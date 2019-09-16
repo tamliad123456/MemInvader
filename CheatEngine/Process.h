@@ -9,10 +9,7 @@
 #include <tlhelp32.h>
 #include <DbgHelp.h>
 #include <vector>
-//#include <Lmcons.h>
-//#include <limits>
 
-#define CHUNK_SIZE (1024 * 128)
 
 struct Page
 {
@@ -33,6 +30,9 @@ public:
 	Process(int pid);
 	~Process();
 
+	Process(const Process& other);
+	Process& operator=(const Process& other);
+
 	inline std::string get_name() const { return name; };
 	inline int get_pid() const { return pid; };
 	inline int get_parent() const { return parent_pid; };
@@ -40,8 +40,6 @@ public:
 	inline bool operator<(const Process& other) const { return pid < other.pid; };
 	inline bool operator==(const Process& other) const { return pid == other.pid; };
 	inline HANDLE get_handle() const { return proc; };
-
-
 
 	std::vector<Page> pages() const;
 

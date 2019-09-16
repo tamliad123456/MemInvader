@@ -10,10 +10,17 @@ using namespace std;
 
 int main()
 {
-	auto proc = get_processes("notepad.exe")[0];
+	while (1)
+	{
+		for (auto proc : get_processes("notepad.exe")) 
+		{
+			for (auto addr : proc.find((char*)L"hello", 10))
+			{
+				proc.write(addr, (char*)L"fuck", 8);
+			}
+		}
+	}
 
-	//"\x68\x00\x65\x00\x6C\x00\x6C\x00\x6F\x00"
-	auto oc = proc.find((char*)"\x68\x00\x65\x00\x6C\x00\x6C\x00\x6F\x00", 11);
-	proc.write(oc[0], (char*)L"fucking yes", 11*2);
+
 	return 0;
 }

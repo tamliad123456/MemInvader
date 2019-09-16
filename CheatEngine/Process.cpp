@@ -12,10 +12,25 @@ Process::Process(std::string name, int pid, int parent) : name(name), pid(pid), 
 	proc = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);
 }
 
+Process::Process(const Process& other)
+{
+	*this = other;
+}
+
+Process& Process::operator=(const Process& other)
+{
+	this->name = other.name;
+	this->pid = other.pid;
+	this->parent_pid = other.parent_pid;
+
+	this->proc = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);
+
+	return *this;
+}
+
 /* A constructor function for process*/
 Process::Process(int pid) 
 {
-	std::set<Process> processes;
 	HANDLE hProcessSnap;
 	PROCESSENTRY32 pe32;
 	hProcessSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
@@ -28,13 +43,24 @@ Process::Process(int pid)
 	{
 		pe32.dwSize = sizeof(PROCESSENTRY32);
 		Process32First(hProcessSnap, &pe32);
-		processes.insert(Process(pe32.szExeFile, pe32.th32ProcessID, pe32.th32ParentProcessID));
+		if (pid == pe32.th32ProcessID)
+		{
+			*this = Process(pe32.szExeFile, pe32.th32ProcessID, pe32.th32ParentProcessID);
+			/*this->name = pe32.szExeFile;
+			this->pid = pe32.th32ProcessID;
+			this->parent_pid = pe32.th32ParentProcessID;
+			this->proc = proc = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);*/
+
+			return;
+		}
 
 		while (Process32Next(hProcessSnap, &pe32))
 		{
 			if (pid == pe32.th32ProcessID)
 			{
 				*this = Process(pe32.szExeFile, pe32.th32ProcessID, pe32.th32ParentProcessID);
+
+
 				break;
 			}
 
@@ -47,6 +73,12 @@ Process::Process(int pid)
 /* A Distructor function*/
 Process::~Process()
 {
+	if (proc)
+	{
+		CloseHandle(proc);
+		proc = NULL;
+	}
+	
 }
 
 
