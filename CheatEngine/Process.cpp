@@ -14,6 +14,7 @@ Process::Process(std::string name, int pid, int parent) : name(name), pid(pid), 
 
 Process::Process(const Process& other)
 {
+	proc = NULL;
 	*this = other;
 }
 
@@ -22,6 +23,11 @@ Process& Process::operator=(const Process& other)
 	this->name = other.name;
 	this->pid = other.pid;
 	this->parent_pid = other.parent_pid;
+
+	if (proc)
+	{
+		CloseHandle(proc);
+	}
 
 	this->proc = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);
 
@@ -46,11 +52,6 @@ Process::Process(int pid)
 		if (pid == pe32.th32ProcessID)
 		{
 			*this = Process(pe32.szExeFile, pe32.th32ProcessID, pe32.th32ParentProcessID);
-			/*this->name = pe32.szExeFile;
-			this->pid = pe32.th32ProcessID;
-			this->parent_pid = pe32.th32ParentProcessID;
-			this->proc = proc = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);*/
-
 			return;
 		}
 
@@ -59,8 +60,6 @@ Process::Process(int pid)
 			if (pid == pe32.th32ProcessID)
 			{
 				*this = Process(pe32.szExeFile, pe32.th32ProcessID, pe32.th32ParentProcessID);
-
-
 				break;
 			}
 

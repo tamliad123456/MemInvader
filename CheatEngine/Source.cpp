@@ -1,4 +1,4 @@
-#include <windows.h>
+﻿#include <windows.h>
 #include <iostream>
 #include <iomanip>
 #include "Process.h"
@@ -14,13 +14,12 @@ int main()
 	{
 		for (auto proc : get_processes("notepad.exe")) 
 		{
-			for (auto addr : proc.find((char*)L"hello", 10))
+			for (auto addr : proc.find((char*)L"תמיר", 8))
 			{
-				proc.write(addr, (char*)L"fuck", 8);
+				proc.write(addr, (char*)L"הומו", 8);
 			}
 		}
 	}
-
-
+	
 	return 0;
 }
