@@ -1,12 +1,18 @@
 #include "Process.h"
+
+
 using std::cout;
 using std::endl;
+using std::vector;
+using std::string;
 
+/* A constructor function for process*/
 Process::Process(std::string name, int pid, int parent) : name(name), pid(pid), parent_pid(parent)
 {
 	proc = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);
 }
 
+/* A constructor function for process*/
 Process::Process(int pid) 
 {
 	std::set<Process> processes;
@@ -18,7 +24,7 @@ Process::Process(int pid)
 	{
 		throw std::exception("cant create processess snapshot");
 	}
-	else
+	else 
 	{
 		pe32.dwSize = sizeof(PROCESSENTRY32);
 		Process32First(hProcessSnap, &pe32);
@@ -38,13 +44,13 @@ Process::Process(int pid)
 
 	}
 }
-
+/* A Distructor function*/
 Process::~Process()
 {
 }
 
 
-
+/* A function to get a vector of pages */
 std::vector<Page> Process::pages() const
 {
 	std::vector<Page> ret;
@@ -67,21 +73,45 @@ std::vector<Page> Process::pages() const
 	return ret;
 }
 
-SIZE_T Process::write(uint64_t addr, char* buff, uint64_t& len)
+/* A function to write to process memory */
+SIZE_T Process::write(uint64_t addr, char* buff, uint64_t len)
 {
 	SIZE_T buff_write = 0;
-	ReadProcessMemory(this->proc, (void*)addr, buff, len, &buff_write);
-	cout << GetLastError() << endl;
+	WriteProcessMemory(this->proc, (void*)addr, buff, len, &buff_write);
 	return buff_write;
 }
 
-SIZE_T Process::read(uint64_t& addr, char* buff, uint64_t& len) const
+/* A function to read from process memory */
+SIZE_T Process::read(uint64_t addr, char* buff, uint64_t len) const
 {
 	SIZE_T buff_read = 0;
 	ReadProcessMemory(this->proc, (void*)addr, buff, len, &buff_read);
 	return buff_read;
 }
 
+/* A function to find buffer inside a page */
+std::vector<uint64_t> Process::find(char* buff, int len)
+{
+	std::vector<uint64_t> ret;
+	
+	for(auto& page : this->pages())
+	{
+		std::string page_content(page.size, 0);
+		this->read(page.base_addr, (char*)page_content.c_str(), page.size);
+
+		string content_str = string(buff, buff + len);
+		
+		size_t pos = page_content.find(content_str, 0);
+		while (pos != string::npos)
+		{
+			ret.push_back(pos + page.base_addr);
+			pos = page_content.find(content_str, pos + 1);
+		}
+	}
+	return ret;
+}
+
+/* A function that checks if page can be read and written to */
 bool is_usable(MEMORY_BASIC_INFORMATION& page_info)
 {
 	return	page_info.State ==	 MEM_COMMIT &&
@@ -90,7 +120,8 @@ bool is_usable(MEMORY_BASIC_INFORMATION& page_info)
 			
 }
 
-std::vector<Process> get_processes()
+/* A function to get all the running processes in vector */
+std::vector<Process> get_processes(const std::string& proc_name)
 {
 	std::vector<Process> processes;
 	HANDLE hProcessSnap;
@@ -105,11 +136,14 @@ std::vector<Process> get_processes()
 	{
 		pe32.dwSize = sizeof(PROCESSENTRY32);
 		Process32First(hProcessSnap, &pe32);
-		processes.push_back(Process(pe32.szExeFile, pe32.th32ProcessID, pe32.th32ParentProcessID));
+
+		if(proc_name == "" || proc_name == pe32.szExeFile)
+			processes.push_back(Process(pe32.szExeFile, pe32.th32ProcessID, pe32.th32ParentProcessID));
 
 		while (Process32Next(hProcessSnap, &pe32))
 		{
-			processes.push_back(Process(pe32.szExeFile, pe32.th32ProcessID, pe32.th32ParentProcessID));
+			if(proc_name == "" || proc_name == pe32.szExeFile)
+				processes.push_back(Process(pe32.szExeFile, pe32.th32ProcessID, pe32.th32ParentProcessID));
 		}
 		// clean the snapshot object
 		CloseHandle(hProcessSnap);
