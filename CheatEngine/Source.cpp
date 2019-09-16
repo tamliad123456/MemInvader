@@ -10,15 +10,8 @@ using namespace std;
 
 int main()
 {
-	uint64_t  address = 0;
-	uint64_t value = 0;
-	DWORD pid;
-	HANDLE phandle = NULL;
 
-	process* notepad = NULL;
-	char char_to_search = 'j';
-
-	for (auto& proc : get_processes())
+	for (Process& proc : get_processes())
 	{
 		if (proc.get_name() == "notepad.exe")
 		{
@@ -26,16 +19,23 @@ int main()
 			vector<unsigned char> diff;
 			while (TRUE)
 			{
-				proc.WriteFullDump();
-				/*if (old_dump.size() > 0)
+				auto pages = proc.pages();
+				for (Page page : pages)
 				{
-					int counter = 0;
-					cout << string(dump.begin(), dump.end()) << endl;
-					cout << dump.size() << endl;
-				}
-				old_dump = dump;*/
+					std::vector<char> data(page.size);
+					proc.read(page.base_addr, data.data(), page.size);
+					//std::cout << string(data.begin(), data.end());
 
-				//cout << string(dump.begin(), dump.end()) << endl;
+					string bla = string(data.begin(), data.end());
+					string r("\x68\x00\x65\x00\x6C\x00\x6C\x00\x6F\x00", 9);
+					auto index = bla.find(r);
+					if (index != std::string::npos)
+					{
+						std::cout << "blabla";
+						uint64_t tmp = 12;
+						proc.write(page.base_addr + index, (char*)"fucking yes", tmp);
+					}
+				}
 				break;
 			}
 			break;
