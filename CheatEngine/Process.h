@@ -1,21 +1,6 @@
 #pragma once
 
-#include <Windows.h>
-#include <psapi.h>
-#include <string>
-#include <set>
-#include <vector>
-#include <iostream>
-#include <tlhelp32.h>
-#include <DbgHelp.h>
-#include <vector>
-
-
-struct Page
-{
-	uint64_t base_addr;
-	uint64_t size;
-};
+#include "MemInvaderInclude.h"
 
 class Process
 {
@@ -24,6 +9,7 @@ class Process
 	int pid;
 	int parent_pid;
 
+	PTR<std::map<int, PTR<MemSnapshot>>> snapshots;
 
 public:
 	Process(std::string name, int pid, int parent);
@@ -47,6 +33,10 @@ public:
 	SIZE_T read(uint64_t addr, char* buff, uint64_t len) const;
 
 	std::vector<uint64_t> find(char* buff, int len);
+
+	int take_snapshot();
+	PTR<MemSnapshot> get_snapshot(int id);
+	void delete_snapshot(int id);
 
 };
 

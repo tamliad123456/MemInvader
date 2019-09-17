@@ -1,25 +1,21 @@
 ﻿#include <windows.h>
 #include <iostream>
 #include <iomanip>
-#include "Process.h"
-
-
+#include "MemInvaderInclude.h"
 
 using namespace std;
 
 
 int main()
 {
-	while (1)
-	{
-		for (auto proc : get_processes("notepad.exe")) 
-		{
-			for (auto addr : proc.find((char*)L"תמיר", 8))
-			{
-				proc.write(addr, (char*)L"הומו", 8);
-			}
-		}
-	}
+
+	auto proc = get_processes("notepad.exe")[0];
+
+
+
+	int id = proc.take_snapshot();
+	auto snap = proc.get_snapshot(id);
+	auto mem = snap->get_mem(snap->get_addresses()[0]);
 	
 	return 0;
 }
