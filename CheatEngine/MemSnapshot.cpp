@@ -28,6 +28,7 @@ PTR<MemSnapshot::MemBuffer> MemSnapshot::get_mem(uint64_t addr)
 std::vector<uint64_t> MemSnapshot::get_addresses()
 {
 	//i was bored...;
+
 	return GET
 	(
 		int i = 0;
@@ -68,9 +69,13 @@ std::map<uint64_t, uint64_t> MemSnapshot::cmp_buffers(const MemBuffer& a, const 
 
 	uint64_t match_len = 0;
 
-	for (uint64_t i = 0; i < MIN(a.size(), b.size()); i++)
+	char* a_data = (char*)a.c_str();
+	char* b_data = (char*)b.c_str();
+
+	uint64_t len = MIN(a.size(), b.size());
+	for (uint64_t i = 0; i < len; i++)
 	{
-		if (a[i] != b[i])
+		if (a_data[i] != b_data[i])
 		{
 			match_len++;
 		}

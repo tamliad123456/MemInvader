@@ -36,7 +36,7 @@ Process& Process::operator=(const Process& other)
 }
 
 /* A constructor function for process*/
-Process::Process(int pid) : pid(0), name(""), parent_pid(0), snapshots(0)
+Process::Process(int pid) : pid(0), name(""), parent_pid(0), snapshots(0), proc(NULL)
 {
 	HANDLE hProcessSnap;
 	PROCESSENTRY32 pe32;
@@ -214,3 +214,5 @@ std::vector<Process> get_processes(const std::string& proc_name)
 	}
 	return processes;
 }
+
+
