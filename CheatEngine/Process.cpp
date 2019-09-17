@@ -178,7 +178,7 @@ void Process::delete_snapshot(int id)
 bool is_usable(MEMORY_BASIC_INFORMATION& page_info)
 {
 	return	page_info.State ==	 MEM_COMMIT &&
-			//page_info.Type ==	 MEM_PRIVATE &&  //weird
+			page_info.Type ==	 MEM_PRIVATE &&  //weird
 			page_info.Protect == PAGE_READWRITE;
 			
 }
