@@ -25,5 +25,8 @@ public:
 
 	std::vector<uint64_t> get_addresses();
 
+	std::map<uint64_t, uint64_t>  cmp(MemSnapshot& other);
+
+	static std::map<uint64_t, uint64_t> cmp_buffers(const MemBuffer& a, const MemBuffer& b);
 };
 

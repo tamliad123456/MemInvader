@@ -10,10 +10,15 @@
 #include <DbgHelp.h>
 #include <memory>
 
+#define MIN(x, y) (x > y ? y : x)
+#define MAX(x, y) (x < y ? y : x)
+
 #define GET(x) [&](){x}()
 
 template<class T>
 using PTR = std::shared_ptr<T>;
+
+#define NULLPTR(T) std::shared_ptr<T>(nullptr);
 
 class MemSnapshot;
 struct Page;
