@@ -125,11 +125,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="MemFilter.cpp" />
     <ClCompile Include="MemSnapshot.cpp" />
     <ClCompile Include="Process.cpp" />
     <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="MemFilter.h" />
     <ClInclude Include="MemInvaderInclude.h" />
     <ClInclude Include="MemSnapshot.h" />
     <ClInclude Include="Process.h" />

@@ -10,9 +10,6 @@ struct Page
 
 class MemSnapshot
 {
-public:
-	typedef std::string MemBuffer;
-	typedef std::map<uint64_t, PTR<MemBuffer>> MemTable;
 
 private:
 	MemTable pages;
@@ -25,8 +22,8 @@ public:
 
 	std::vector<uint64_t> get_addresses();
 
-	std::map<uint64_t, uint64_t>  cmp(MemSnapshot& other);
+	std::map<uint64_t, uint64_t>  cmp(MemSnapshot& other); //TODO: return MemFilter
 
-	static std::map<uint64_t, uint64_t> cmp_buffers(const MemBuffer& a, const MemBuffer& b);
+	static std::map<uint64_t, uint64_t> cmp_buffers(const MemBuffer& a, const MemBuffer& b); //TODO: return MemTable, with the data instead of the length (may hinder performance)
 };
 

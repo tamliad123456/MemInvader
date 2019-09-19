@@ -32,14 +32,14 @@ public:
 	SIZE_T write(uint64_t addr, char* buff, uint64_t len);
 	SIZE_T read(uint64_t addr, char* buff, uint64_t len) const;
 
-	std::vector<uint64_t> find(char* buff, int len);
+	std::vector<uint64_t> find(char* buff, int len); //TODO: return MemFilter
 
 	int take_snapshot();
 	PTR<MemSnapshot> get_snapshot(int id);
 	void delete_snapshot(int id);
 
 	template<class T>
-	std::vector<uint64_t> find(T& value);
+	std::vector<uint64_t> find(T& value); //TODO: return MemFilter
 
 	template<class T>
 	void read(uint64_t addr, T& value);
@@ -49,7 +49,7 @@ public:
 
 
 	template<int len>
-	std::vector<uint64_t> find(char (&value)[len]);
+	std::vector<uint64_t> find(char (&value)[len]); //TODO: return MemFilter
 
 	template<int len>
 	void read(uint64_t addr, char (&value)[len]);

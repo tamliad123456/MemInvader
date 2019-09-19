@@ -18,7 +18,12 @@
 template<class T>
 using PTR = std::shared_ptr<T>;
 
+typedef std::string MemBuffer;
+typedef std::map<uint64_t, PTR<MemBuffer>> MemTable;
+
 #define NULLPTR(T) std::shared_ptr<T>(nullptr);
+
+class MemFilter;
 
 class MemSnapshot;
 struct Page;
@@ -26,5 +31,7 @@ struct Page;
 
 class Process;
 #include "MemSnapshot.h"
+
+#include "MemFilter.h"
 
 

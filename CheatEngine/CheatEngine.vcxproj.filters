@@ -24,6 +24,9 @@
     <ClCompile Include="MemSnapshot.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MemFilter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Process.h">
@@ -33,6 +36,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MemInvaderInclude.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MemFilter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

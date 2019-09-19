@@ -15,7 +15,7 @@ MemSnapshot::~MemSnapshot()
 {
 }
 
-PTR<MemSnapshot::MemBuffer> MemSnapshot::get_mem(uint64_t addr)
+PTR<MemBuffer> MemSnapshot::get_mem(uint64_t addr)
 {
 	auto it = pages.find(addr);
 	if (it != pages.end())
