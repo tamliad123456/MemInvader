@@ -126,6 +126,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="MemFilter.cpp" />
+    <ClCompile Include="MemoryMapped.cpp" />
     <ClCompile Include="MemSnapshot.cpp" />
     <ClCompile Include="Process.cpp" />
     <ClCompile Include="Source.cpp" />
@@ -133,6 +134,7 @@
   <ItemGroup>
     <ClInclude Include="MemFilter.h" />
     <ClInclude Include="MemInvaderInclude.h" />
+    <ClInclude Include="MemoryMapped.h" />
     <ClInclude Include="MemSnapshot.h" />
     <ClInclude Include="Process.h" />
   </ItemGroup>

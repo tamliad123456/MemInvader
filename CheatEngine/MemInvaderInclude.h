@@ -32,7 +32,9 @@ struct Page;
 struct MemValue;
 class MemFilter;
 enum Type : char;
+class MemoryMapped;
 
+#include "MemoryMapped.h"
 #include "Process.h"
 #include "MemFilter.h"
 #include "MemSnapshot.h"
