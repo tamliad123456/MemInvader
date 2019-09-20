@@ -27,6 +27,7 @@ int main()
 
 	int first = proc.take_snapshot();
 
+
 	while (1)
 	{
 		auto first_snap = proc.get_snapshot(first);
@@ -34,7 +35,7 @@ int main()
 		auto tmp = proc.take_snapshot();
 
 		auto bla = clock();
-		auto diff = first_snap->cmp(*proc.get_snapshot(tmp), MemFilter::Filter::DIFFERANT);
+		auto diff = first_snap->cmp(*proc.get_snapshot(tmp), Type::SMALLER);
 		auto curr = clock();
 
 		if (diff->size() > 0)

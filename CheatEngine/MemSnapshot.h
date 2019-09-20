@@ -1,11 +1,18 @@
 #pragma once
 #include "MemInvaderInclude.h"
 
-
 struct Page
 {
 	uint64_t base_addr;
 	uint64_t size;
+};
+
+struct MemValue
+{
+	uint64_t addr;
+	PTR<MemBuffer> value;
+
+	MemValue(uint64_t addr, PTR<MemBuffer>& value) : addr(addr), value(value) {}
 };
 
 class MemSnapshot
@@ -22,8 +29,12 @@ public:
 
 	std::vector<uint64_t> get_addresses();
 
-	PTR<std::map<uint64_t, PTR<std::map<uint64_t, uint64_t>>>> cmp(MemSnapshot& other, MemFilter::Filter::Type filter = MemFilter::Filter::Type::DIFFERANT); //TODO: return MemFilter
+	PTR<std::vector<MemValue>> cmp(MemSnapshot& other, Type filter); //TODO: return MemFilter
 
-	static PTR<std::map<uint64_t, uint64_t>> cmp_buffers(const MemBuffer& prior, const MemBuffer& later, MemFilter::Filter& filter);
+
+	static void cmp_buffers_different(const MemBuffer& prior, const MemBuffer& later, uint64_t base_addr, std::vector<MemValue>& table);
+	static void cmp_buffers_bigger(const MemBuffer& prior, const MemBuffer& later, uint64_t base_addr, std::vector<MemValue>& table);
+	static void cmp_buffers_smaller(const MemBuffer& prior, const MemBuffer& later, uint64_t base_addr, std::vector<MemValue>& table);
+	static void cmp_buffers_same(const MemBuffer& prior, const MemBuffer& later, uint64_t base_addr, std::vector<MemValue>& table);
 };
 

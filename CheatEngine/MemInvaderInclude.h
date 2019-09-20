@@ -9,6 +9,8 @@
 #include <tlhelp32.h>
 #include <DbgHelp.h>
 #include <memory>
+#include <thread>
+#include <mutex>
 
 #define MIN(x, y) (x > y ? y : x)
 #define MAX(x, y) (x < y ? y : x)
@@ -27,17 +29,10 @@ typedef std::map<uint64_t, PTR<MemBuffer>> MemTable;
 class Process;
 class MemSnapshot;
 struct Page;
+struct MemValue;
 class MemFilter;
-
-
-#include "MemFilter.h"
+enum Type : char;
 
 #include "Process.h"
+#include "MemFilter.h"
 #include "MemSnapshot.h"
-
-
-
-
-
-
-

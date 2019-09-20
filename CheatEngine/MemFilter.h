@@ -1,52 +1,25 @@
 #pragma once
 #include "MemInvaderInclude.h"
 
+enum Type : char
+{
+	BIGGER,
+	SMALLER,
+	DIFFERANT,
+	SAME
+};
+
+
 class MemFilter
 {
-	PTR<MemTable> addresses;
+	PTR<std::vector<MemValue>> addresses;
 
 public:
 
-	class Filter
-	{
-	public:
-		enum Type
-		{
-			BIGGER,
-			SMALLER,
-			DIFFERANT,
-			SAME
-		};
-		typedef bool(*FilterType)(char prior, char later);
+	MemFilter(PTR<std::vector<MemValue>>);
+	~MemFilter();
 
-		static inline bool bigger_type(char prior, char later)
-		{
-			return later > prior;
-		}
-		static inline bool smaller_type(char prior, char later)
-		{
-			return later < prior;
-		}
-		static inline bool differant_type(char prior, char later)
-		{
-			return later != prior;
-		}
-		static inline bool same_type(char prior, char later)
-		{
-			return later == prior;
-		}
-
-		static FilterType funcs[];
-		FilterType filter;
-
-	public:
-		Filter(Type type);
-
-		inline bool operator()(char prior, char later) { return filter(prior, later); }
-	};
-	
-
-	void filter(Process& proc, Filter filter);
+	void filter(Process& proc, Type filter);
 
 	void filter_new_value(Process& proc, char* value, int len);
 

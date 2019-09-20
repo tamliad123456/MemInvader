@@ -42,11 +42,33 @@ std::vector<uint64_t> MemSnapshot::get_addresses()
 	);
 }
 
-PTR<std::map<uint64_t, PTR<std::map<uint64_t, uint64_t>>>>  MemSnapshot::cmp(MemSnapshot& other, MemFilter::Filter::Type filter_type)
-{
-	auto ret = PTR<std::map<uint64_t, PTR<std::map<uint64_t, uint64_t>>>>(new std::map<uint64_t, PTR<std::map<uint64_t, uint64_t>>>);
 
-	MemFilter::Filter filter(filter_type);
+PTR<std::vector<MemValue>>  MemSnapshot::cmp(MemSnapshot& other, Type filter_type)
+{
+	PTR<std::vector<MemValue>> ret = PTR<std::vector<MemValue>>(new std::vector<MemValue>());
+
+	void (*comp)(const MemBuffer& prior, const MemBuffer& later, uint64_t base_addr, std::vector<MemValue>& table) = nullptr;
+
+	switch (filter_type)
+	{
+	case BIGGER:
+		comp = cmp_buffers_bigger;
+		break;
+	case SMALLER:
+		comp = cmp_buffers_smaller;
+		break;
+	case DIFFERANT:
+		comp = cmp_buffers_different;
+		break;
+	case SAME:
+		comp = cmp_buffers_same;
+		break;
+	default:
+		return nullptr;
+	}
+
+
+
 	for (auto page : pages)
 	{
 		auto addr = page.first;
@@ -54,35 +76,80 @@ PTR<std::map<uint64_t, PTR<std::map<uint64_t, uint64_t>>>>  MemSnapshot::cmp(Mem
 
 		if (other_mem)
 		{
-			(*ret)[addr] = cmp_buffers(*page.second, *other_mem, filter);
+			comp(*page.second, *other_mem, addr, *ret);
 		}
 	}
 
 	return ret;
 }
 
-PTR<std::map<uint64_t, uint64_t>> MemSnapshot::cmp_buffers(const MemBuffer& prior, const MemBuffer& later, MemFilter::Filter& filter)
-{
-	auto ret = PTR<std::map<uint64_t, uint64_t>>(new std::map<uint64_t, uint64_t>);
 
+void MemSnapshot::cmp_buffers_different(const MemBuffer& prior, const MemBuffer& later, uint64_t base_addr, std::vector<MemValue>& table)
+{
+	uint64_t len = MIN(prior.size(), later.size());
 	uint64_t match_len = 0;
 
 	char* a_data = (char*)prior.c_str();
 	char* b_data = (char*)later.c_str();
 
-	uint64_t len = MIN(prior.size(), later.size());
 	for (uint64_t i = 0; i < len; i++)
 	{
-		if (filter(a_data[i], b_data[i]))
+		if (a_data[i] != b_data[i])
 		{
-			match_len++;
-		}
-		else if (match_len > 0)
+			auto data = PTR<MemBuffer>(new MemBuffer(1, b_data[i]));
+			table.emplace_back(base_addr + i, data);
+		}								
+	}
+}
+
+void MemSnapshot::cmp_buffers_bigger(const MemBuffer& prior, const MemBuffer& later, uint64_t base_addr, std::vector<MemValue>& table)
+{
+	uint64_t len = MIN(prior.size(), later.size());
+	uint64_t match_len = 0;
+
+	char* a_data = (char*)prior.c_str();
+	char* b_data = (char*)later.c_str();
+
+	for (uint64_t i = 0; i < len; i++)
+	{
+		if (a_data[i] < b_data[i])
 		{
-			(*ret)[i - match_len] = match_len;
-			match_len = 0;
+			auto data = PTR<MemBuffer>(new MemBuffer(1, b_data[i]));
+			table.emplace_back(base_addr + i, data);
 		}
 	}
+}
+void MemSnapshot::cmp_buffers_smaller(const MemBuffer& prior, const MemBuffer& later, uint64_t base_addr, std::vector<MemValue>& table)
+{
+	uint64_t len = MIN(prior.size(), later.size());
+	uint64_t match_len = 0;
 
-	return ret;
+	char* a_data = (char*)prior.c_str();
+	char* b_data = (char*)later.c_str();
+
+	for (uint64_t i = 0; i < len; i++)
+	{
+		if (a_data[i] > b_data[i])
+		{
+			auto data = PTR<MemBuffer>(new MemBuffer(1, b_data[i]));
+			table.emplace_back(base_addr + i, data);
+		}
+	}
+}
+void MemSnapshot::cmp_buffers_same(const MemBuffer& prior, const MemBuffer& later, uint64_t base_addr, std::vector<MemValue>& table)
+{
+	uint64_t len = MIN(prior.size(), later.size());
+	uint64_t match_len = 0;
+
+	char* a_data = (char*)prior.c_str();
+	char* b_data = (char*)later.c_str();
+
+	for (uint64_t i = 0; i < len; i++)
+	{
+		if (a_data[i] == b_data[i])
+		{
+			auto data = PTR<MemBuffer>(new MemBuffer(1, b_data[i]));
+			table.emplace_back(base_addr + i, data);
+		}
+	}
 }
