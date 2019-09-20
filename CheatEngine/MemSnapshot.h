@@ -22,8 +22,8 @@ public:
 
 	std::vector<uint64_t> get_addresses();
 
-	std::map<uint64_t, uint64_t>  cmp(MemSnapshot& other); //TODO: return MemFilter
+	PTR<std::map<uint64_t, PTR<std::map<uint64_t, uint64_t>>>> cmp(MemSnapshot& other, MemFilter::Filter::Type filter = MemFilter::Filter::Type::DIFFERANT); //TODO: return MemFilter
 
-	static std::map<uint64_t, uint64_t> cmp_buffers(const MemBuffer& a, const MemBuffer& b); //TODO: return MemTable, with the data instead of the length (may hinder performance)
+	static PTR<std::map<uint64_t, uint64_t>> cmp_buffers(const MemBuffer& prior, const MemBuffer& later, MemFilter::Filter& filter);
 };
 

@@ -23,15 +23,21 @@ typedef std::map<uint64_t, PTR<MemBuffer>> MemTable;
 
 #define NULLPTR(T) std::shared_ptr<T>(nullptr);
 
-class MemFilter;
-
-class MemSnapshot;
-struct Page;
-#include "Process.h"
 
 class Process;
-#include "MemSnapshot.h"
+class MemSnapshot;
+struct Page;
+class MemFilter;
+
 
 #include "MemFilter.h"
+
+#include "Process.h"
+#include "MemSnapshot.h"
+
+
+
+
+
 
 

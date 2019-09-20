@@ -32,56 +32,54 @@ std::vector<uint64_t> MemSnapshot::get_addresses()
 	return GET
 	(
 		int i = 0;
-		std::vector<uint64_t> ret(pages.size());
-		for (auto page : pages)
-		{
-			ret[i] = page.first;
-			i++;
-		}
-		return ret;
+	std::vector<uint64_t> ret(pages.size());
+	for (auto page : pages)
+	{
+		ret[i] = page.first;
+		i++;
+	}
+	return ret;
 	);
 }
 
-std::map<uint64_t, uint64_t>  MemSnapshot::cmp(MemSnapshot& other)
+PTR<std::map<uint64_t, PTR<std::map<uint64_t, uint64_t>>>>  MemSnapshot::cmp(MemSnapshot& other, MemFilter::Filter::Type filter_type)
 {
-	auto ret = std::map<uint64_t, uint64_t>();
+	auto ret = PTR<std::map<uint64_t, PTR<std::map<uint64_t, uint64_t>>>>(new std::map<uint64_t, PTR<std::map<uint64_t, uint64_t>>>);
 
-	for(auto page : pages)
-	{ 
+	MemFilter::Filter filter(filter_type);
+	for (auto page : pages)
+	{
 		auto addr = page.first;
 		auto other_mem = other.get_mem(addr);
 
 		if (other_mem)
 		{
-			for (auto pair : cmp_buffers(*page.second, *other_mem))
-			{
-				ret[pair.first + page.first] = pair.second;
-			}
+			(*ret)[addr] = cmp_buffers(*page.second, *other_mem, filter);
 		}
 	}
 
 	return ret;
 }
 
-std::map<uint64_t, uint64_t> MemSnapshot::cmp_buffers(const MemBuffer& a, const MemBuffer& b)
+PTR<std::map<uint64_t, uint64_t>> MemSnapshot::cmp_buffers(const MemBuffer& prior, const MemBuffer& later, MemFilter::Filter& filter)
 {
-	auto ret = std::map<uint64_t, uint64_t>();
+	auto ret = PTR<std::map<uint64_t, uint64_t>>(new std::map<uint64_t, uint64_t>);
 
 	uint64_t match_len = 0;
 
-	char* a_data = (char*)a.c_str();
-	char* b_data = (char*)b.c_str();
+	char* a_data = (char*)prior.c_str();
+	char* b_data = (char*)later.c_str();
 
-	uint64_t len = MIN(a.size(), b.size());
+	uint64_t len = MIN(prior.size(), later.size());
 	for (uint64_t i = 0; i < len; i++)
 	{
-		if (a_data[i] != b_data[i])
+		if (filter(a_data[i], b_data[i]))
 		{
 			match_len++;
 		}
 		else if (match_len > 0)
 		{
-			ret[i - match_len] = match_len;
+			(*ret)[i - match_len] = match_len;
 			match_len = 0;
 		}
 	}

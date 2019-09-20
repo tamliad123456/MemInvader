@@ -10,22 +10,22 @@ using namespace std;
 
 int main()
 {
-	auto proc = get_processes("notepad.exe")[0];
+	auto proc = get_processes("devenv.exe")[0];
 
-	wchar_t bla[] = L"blabla";
-	
+	//wchar_t bla[] = L"blabla";
+	//
 
-	while (1)
-	{
-		for (auto addr : proc.find(bla))
-		{
-			wchar_t w[] = L"fuckyu";
-			proc.write(addr, w);
-		}
-	}
+	//while (1)
+	//{
+	//	for (auto addr : proc.find(bla))
+	//	{
+	//		wchar_t w[] = L"fuckyu";
+	//		proc.write(addr, w);
+	//	}
+	//}
 
 
-	/*int first = proc.take_snapshot();
+	int first = proc.take_snapshot();
 
 	while (1)
 	{
@@ -33,20 +33,18 @@ int main()
 
 		auto tmp = proc.take_snapshot();
 
-		auto diff = first_snap->cmp(*proc.get_snapshot(tmp));
+		auto bla = clock();
+		auto diff = first_snap->cmp(*proc.get_snapshot(tmp), MemFilter::Filter::DIFFERANT);
+		auto curr = clock();
 
-		if (diff.size() > 0)
+		if (diff->size() > 0)
 		{
-			for (auto pair : diff)
-			{
-				std::cout << pair.first << ", " << pair.second << std::endl;
-			}
-
+			std::cout << curr - bla << std::endl;
 		}
 
 		proc.delete_snapshot(first);
 		first = tmp;
-	}*/
+	}
 
 
 	return 0;

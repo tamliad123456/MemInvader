@@ -7,13 +7,44 @@ class MemFilter
 
 public:
 
-	enum Filter
+	class Filter
 	{
-		BIGGER,
-		SMALLER,
-		DIFFERANT,
-		SAME
+	public:
+		enum Type
+		{
+			BIGGER,
+			SMALLER,
+			DIFFERANT,
+			SAME
+		};
+		typedef bool(*FilterType)(char prior, char later);
+
+		static inline bool bigger_type(char prior, char later)
+		{
+			return later > prior;
+		}
+		static inline bool smaller_type(char prior, char later)
+		{
+			return later < prior;
+		}
+		static inline bool differant_type(char prior, char later)
+		{
+			return later != prior;
+		}
+		static inline bool same_type(char prior, char later)
+		{
+			return later == prior;
+		}
+
+		static FilterType funcs[];
+		FilterType filter;
+
+	public:
+		Filter(Type type);
+
+		inline bool operator()(char prior, char later) { return filter(prior, later); }
 	};
+	
 
 	void filter(Process& proc, Filter filter);
 
