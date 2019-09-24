@@ -25,17 +25,14 @@ int main()
 	//}
 
 
-	int first = proc.take_snapshot();
 
+	auto first = proc.take_snapshot();
 
 	while (1)
 	{
-		auto first_snap = proc.get_snapshot(first);
-
 		auto tmp = proc.take_snapshot();
-
 		auto bla = clock();
-		auto diff = first_snap->cmp(*proc.get_snapshot(tmp), Type::SMALLER);
+		auto diff = first->cmp(*tmp, Type::DIFFERANT);
 		auto curr = clock();
 
 		if (diff->size() > 0)
@@ -43,10 +40,9 @@ int main()
 			std::cout << curr - bla << std::endl;
 		}
 
-		proc.delete_snapshot(first);
 		first = tmp;
 	}
 
-
+	std::cin.get();
 	return 0;
 }

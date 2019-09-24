@@ -171,6 +171,7 @@ void MemoryMapped::close()
   {
 #ifdef _MSC_VER
     ::CloseHandle(_file);
+	DeleteFile(_filename.c_str());
 #else
     ::close(_file);
 #endif

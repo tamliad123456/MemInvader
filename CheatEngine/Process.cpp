@@ -6,9 +6,8 @@ using std::vector;
 using std::string;
 
 /* A constructor function for process*/
-Process::Process(std::string name, int pid, int parent) : name(name), pid(pid), parent_pid(parent), snapshots(0)
+Process::Process(std::string name, int pid, int parent) : name(name), pid(pid), parent_pid(parent)
 {
-	snapshots = std::shared_ptr<std::map<int, std::shared_ptr<MemSnapshot>>>(new std::map<int, std::shared_ptr<MemSnapshot>>);
 	proc = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);
 }
 
@@ -23,7 +22,6 @@ Process& Process::operator=(const Process& other)
 	this->name = other.name;
 	this->pid = other.pid;
 	this->parent_pid = other.parent_pid;
-	this->snapshots = other.snapshots;
 
 	if (proc)
 	{
@@ -36,7 +34,7 @@ Process& Process::operator=(const Process& other)
 }
 
 /* A constructor function for process*/
-Process::Process(int pid) : pid(0), name(""), parent_pid(0), snapshots(0), proc(NULL)
+Process::Process(int pid) : pid(0), name(""), parent_pid(0), proc(NULL)
 {
 	HANDLE hProcessSnap;
 	PROCESSENTRY32 pe32;
@@ -73,7 +71,7 @@ Process::Process(int pid) : pid(0), name(""), parent_pid(0), snapshots(0), proc(
 /* A Distructor function*/
 Process::~Process()
 {
-
+	MemSnapshot::DeleteDirectory(std::to_string(pid).c_str());
 	if (proc)
 	{
 		CloseHandle(proc);
@@ -158,35 +156,14 @@ std::vector<uint64_t> Process::find(char* buff, int len)
 	return ret;
 }
 
-int Process::take_snapshot()
+PTR<MemSnapshot> Process::take_snapshot()
 {
 	static int index = 0;
 	
-	(*snapshots)[index] = PTR<MemSnapshot>(new MemSnapshot(*this));
-	return index++;
+	return PTR<MemSnapshot>(new MemSnapshot(*this, std::to_string(++index)));
 }
 
-PTR<MemSnapshot> Process::get_snapshot(int id)
-{
-	auto it = snapshots->find(id);
-	
-	if (it != snapshots->end())
-	{
-		return it->second;
-	}
-	return nullptr;
-}
 
-void Process::delete_snapshot(int id)
-{
-	auto it = snapshots->find(id);
-
-	if (it != snapshots->end())
-	{
-		snapshots->erase(it);
-	}
-	
-}
 
 /* A function that checks if page can be read and written to */
 bool is_usable(MEMORY_BASIC_INFORMATION& page_info)

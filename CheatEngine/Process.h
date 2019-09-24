@@ -9,8 +9,6 @@ class Process
 	int pid;
 	int parent_pid;
 
-	PTR<std::map<int, PTR<MemSnapshot>>> snapshots;
-
 public:
 	Process(std::string name, int pid, int parent);
 	Process(int pid);
@@ -36,9 +34,8 @@ public:
 
 	std::vector<uint64_t> find(char* buff, int len); //TODO: return MemFilter
 
-	int take_snapshot();
-	PTR<MemSnapshot> get_snapshot(int id);
-	void delete_snapshot(int id);
+	PTR<MemSnapshot> take_snapshot();
+
 
 	template<class T>
 	std::vector<uint64_t> find(T& value); //TODO: return MemFilter

@@ -1,5 +1,7 @@
 #pragma once
 
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <map>
 #include <vector>
 #include <string>
@@ -20,8 +22,6 @@
 template<class T>
 using PTR = std::shared_ptr<T>;
 
-typedef std::string MemBuffer;
-typedef std::map<uint64_t, PTR<MemBuffer>> MemTable;
 
 #define NULLPTR(T) std::shared_ptr<T>(nullptr);
 
@@ -33,6 +33,9 @@ struct MemValue;
 class MemFilter;
 enum Type : char;
 class MemoryMapped;
+
+typedef MemoryMapped MemBuffer;
+typedef std::map<uint64_t, PTR<MemBuffer>> MemTable;
 
 #include "MemoryMapped.h"
 #include "Process.h"
