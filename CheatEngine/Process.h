@@ -27,6 +27,8 @@ public:
 	inline bool operator==(const Process& other) const { return pid == other.pid; };
 	inline HANDLE get_handle() const { return proc; };
 
+	void inject_dll(const std::string& dllname);
+
 	std::vector<Page> pages() const;
 
 	SIZE_T write(uint64_t addr, char* buff, uint64_t len);

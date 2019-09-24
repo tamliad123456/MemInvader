@@ -83,6 +83,20 @@ Process::~Process()
 }
 
 
+void Process::inject_dll(const std::string& dllname)
+{
+	LPVOID LoadLibAddr = (LPVOID)GetProcAddress(GetModuleHandleA("kernel32.dll"), "LoadLibraryA");
+
+	LPVOID dereercomp = VirtualAllocEx(proc, NULL, dllname.size(), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+	WriteProcessMemory(proc, dereercomp, dllname.c_str(), dllname.size(), NULL);
+
+	HANDLE asdc = CreateRemoteThread(proc, NULL, NULL, (LPTHREAD_START_ROUTINE)LoadLibAddr, dereercomp, 0, NULL);
+	WaitForSingleObject(asdc, INFINITE);
+
+	VirtualFreeEx(proc, dereercomp, dllname.size(), MEM_RELEASE);
+	CloseHandle(asdc);
+}
+
 /* A function to get a vector of pages */
 std::vector<Page> Process::pages() const
 {
