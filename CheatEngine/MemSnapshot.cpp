@@ -11,14 +11,17 @@ MemSnapshot::MemSnapshot(Process& proc, const std::string& name)
 		if (CreateDirectory(dir.c_str(), NULL) ||
 			ERROR_ALREADY_EXISTS == GetLastError())
 		{
-			for (Page& page : proc.pages())
+			auto _pages = proc.pages();
+
+			std::vector<std::thread> threads;
+
+			for (Page& page : _pages)
 			{
 				auto page_path = dir + "\\" + std::to_string(page.base_addr);
-
+				
 				PTR<MemoryMapped> file = create_disk_buffer(page_path, page.size);
-				proc.read(page.base_addr, (char*)file->getData(), page.size);
-
 				pages[page.base_addr] = file;
+				proc.read(page.base_addr, (char*)file->getData(), page.size);
 			}
 		}
 	}	
@@ -46,23 +49,24 @@ std::vector<uint64_t> MemSnapshot::get_addresses()
 
 	return GET
 	(
-		int i = 0;
-	std::vector<uint64_t> ret(pages.size());
+	std::vector<uint64_t> ret;
+	ret.reserve(pages.size());
+
 	for (auto page : pages)
 	{
-		ret[i] = page.first;
-		i++;
+		ret.emplace_back(page.first);
 	}
 	return ret;
 	);
 }
 
 
-PTR<std::vector<MemValue>>  MemSnapshot::cmp(MemSnapshot& other, Type filter_type)
+PTR<std::vector<MemValue>>  MemSnapshot::cmp(MemSnapshot& other, Type filter_type, bool async)
 {
-	PTR<std::vector<MemValue>> ret = PTR<std::vector<MemValue>>(new std::vector<MemValue>());
+	PTR<std::vector<MemValue>> ret = std::make_shared<std::vector<MemValue>>();
+	ret->reserve(1000);
 
-	void (*comp)(const MemBuffer& prior, const MemBuffer& later, uint64_t base_addr, std::vector<MemValue>& table) = nullptr;
+	void (*comp)(const MemBuffer& prior, const MemBuffer& later, uint64_t base_addr, std::vector<MemValue>& table, std::mutex & table_lock) = nullptr;
 
 	switch (filter_type)
 	{
@@ -82,7 +86,9 @@ PTR<std::vector<MemValue>>  MemSnapshot::cmp(MemSnapshot& other, Type filter_typ
 		return nullptr;
 	}
 
-
+	std::mutex m;
+	std::vector<std::future<void>> futures;
+	futures.reserve(pages.size());
 
 	for (auto page : pages)
 	{
@@ -91,10 +97,24 @@ PTR<std::vector<MemValue>>  MemSnapshot::cmp(MemSnapshot& other, Type filter_typ
 
 		if (other_mem)
 		{
-			comp(*page.second, *other_mem, addr, *ret);
+			if (async)
+			{
+				futures.emplace_back(std::async(std::launch::async, comp, std::ref(*page.second), std::ref(*other_mem), addr, std::ref(*ret), std::ref(m)));
+			}
+			else
+			{
+				comp(*page.second, *other_mem, addr, *ret, m);
+			}
 		}
 	}
 
+	if (async)
+	{
+		for (auto& future : futures)
+		{
+			future.wait();
+		}
+	}
 	return ret;
 }
 
@@ -115,11 +135,11 @@ PTR<MemoryMapped> MemSnapshot::create_disk_buffer(const std::string& name, uint6
 	fputc(0, fp);
 	fclose(fp);
 
-	return std::shared_ptr<MemoryMapped>(new MemoryMapped(name));
+	return std::make_shared<MemoryMapped>(name);
 }
 
 
-void MemSnapshot::cmp_buffers_different(const MemBuffer& prior, const MemBuffer& later, uint64_t base_addr, std::vector<MemValue>& table)
+void MemSnapshot::cmp_buffers_different(const MemBuffer& prior, const MemBuffer& later, uint64_t base_addr, std::vector<MemValue>& table, std::mutex& table_lock)
 {
 	uint64_t len = MIN(prior.size(), later.size());
 	uint64_t match_len = 0;
@@ -131,12 +151,13 @@ void MemSnapshot::cmp_buffers_different(const MemBuffer& prior, const MemBuffer&
 	{
 		if (a_data[i] != b_data[i])
 		{
+			std::lock_guard<std::mutex> g(table_lock);
 			table.emplace_back(base_addr + i, b_data[i]);
 		}								
 	}
 }
 
-void MemSnapshot::cmp_buffers_bigger(const MemBuffer& prior, const MemBuffer& later, uint64_t base_addr, std::vector<MemValue>& table)
+void MemSnapshot::cmp_buffers_bigger(const MemBuffer& prior, const MemBuffer& later, uint64_t base_addr, std::vector<MemValue>& table, std::mutex& table_lock)
 {
 	uint64_t len = MIN(prior.size(), later.size());
 	uint64_t match_len = 0;
@@ -148,11 +169,12 @@ void MemSnapshot::cmp_buffers_bigger(const MemBuffer& prior, const MemBuffer& la
 	{
 		if (a_data[i] < b_data[i])
 		{
+			std::lock_guard<std::mutex> g(table_lock);
 			table.emplace_back(base_addr + i, b_data[i]);
 		}								
 	}
 }
-void MemSnapshot::cmp_buffers_smaller(const MemBuffer& prior, const MemBuffer& later, uint64_t base_addr, std::vector<MemValue>& table)
+void MemSnapshot::cmp_buffers_smaller(const MemBuffer& prior, const MemBuffer& later, uint64_t base_addr, std::vector<MemValue>& table, std::mutex& table_lock)
 {
 	uint64_t len = MIN(prior.size(), later.size());
 	uint64_t match_len = 0;
@@ -164,11 +186,12 @@ void MemSnapshot::cmp_buffers_smaller(const MemBuffer& prior, const MemBuffer& l
 	{
 		if (a_data[i] > b_data[i])
 		{
+			std::lock_guard<std::mutex> g(table_lock);
 			table.emplace_back(base_addr + i, b_data[i]);
 		}
 	}
 }
-void MemSnapshot::cmp_buffers_same(const MemBuffer& prior, const MemBuffer& later, uint64_t base_addr, std::vector<MemValue>& table)
+void MemSnapshot::cmp_buffers_same(const MemBuffer& prior, const MemBuffer& later, uint64_t base_addr, std::vector<MemValue>& table, std::mutex& table_lock)
 {
 	uint64_t len = MIN(prior.size(), later.size());
 	uint64_t match_len = 0;
@@ -180,6 +203,7 @@ void MemSnapshot::cmp_buffers_same(const MemBuffer& prior, const MemBuffer& late
 	{
 		if (a_data[i] == b_data[i])
 		{
+			std::lock_guard<std::mutex> g(table_lock);
 			table.emplace_back(base_addr + i, b_data[i]);
 		}
 	}

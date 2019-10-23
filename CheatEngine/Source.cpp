@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include "MemInvaderInclude.h"
 
-
 using namespace std;
 
 
@@ -32,7 +31,7 @@ int main()
 	{
 		auto tmp = proc.take_snapshot();
 		auto bla = clock();
-		auto diff = first->cmp(*tmp, Type::DIFFERANT);
+		auto diff = first->cmp(*tmp, Type::DIFFERANT, true);
 		auto curr = clock();
 
 		if (diff->size() > 0)

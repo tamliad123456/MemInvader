@@ -13,6 +13,7 @@
 #include <memory>
 #include <thread>
 #include <mutex>
+#include <future>
 
 #define MIN(x, y) (x > y ? y : x)
 #define MAX(x, y) (x < y ? y : x)

@@ -99,6 +99,7 @@ void Process::inject_dll(const std::string& dllname)
 std::vector<Page> Process::pages() const
 {
 	std::vector<Page> ret;
+	ret.reserve(150);
 
 	MEMORY_BASIC_INFORMATION page_info;
 	uint64_t addr = NULL;
@@ -111,7 +112,7 @@ std::vector<Page> Process::pages() const
 
 		if (is_usable(page_info))
 		{
-			ret.push_back(Page{ (uint64_t)page_info.BaseAddress, page_info.RegionSize });
+			ret.emplace_back((uint64_t)page_info.BaseAddress, page_info.RegionSize);
 		}
 	} 
 	
@@ -138,6 +139,7 @@ SIZE_T Process::read(uint64_t addr, char* buff, uint64_t len) const
 std::vector<uint64_t> Process::find(char* buff, int len)
 {
 	std::vector<uint64_t> ret;
+	ret.reserve(10);
 	
 	for(auto& page : this->pages())
 	{
@@ -149,10 +151,11 @@ std::vector<uint64_t> Process::find(char* buff, int len)
 		size_t pos = page_content.find(content_str, 0);
 		while (pos != string::npos)
 		{
-			ret.push_back(pos + page.base_addr);
+			ret.emplace_back(pos + page.base_addr);
 			pos = page_content.find(content_str, pos + 1);
 		}
 	}
+	ret.shrink_to_fit();
 	return ret;
 }
 
@@ -160,7 +163,7 @@ PTR<MemSnapshot> Process::take_snapshot()
 {
 	static int index = 0;
 	
-	return PTR<MemSnapshot>(new MemSnapshot(*this, std::to_string(++index)));
+	return std::make_shared<MemSnapshot>(*this, std::to_string(++index));
 }
 
 
@@ -178,6 +181,7 @@ bool is_usable(MEMORY_BASIC_INFORMATION& page_info)
 std::vector<Process> get_processes(const std::string& proc_name)
 {
 	std::vector<Process> processes;
+	processes.reserve(50);
 	HANDLE hProcessSnap;
 	PROCESSENTRY32 pe32;
 	hProcessSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
@@ -203,6 +207,7 @@ std::vector<Process> get_processes(const std::string& proc_name)
 		CloseHandle(hProcessSnap);
 
 	}
+	processes.shrink_to_fit();
 	return processes;
 }
 
