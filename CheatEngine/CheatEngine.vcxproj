@@ -87,6 +87,8 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <PreprocessToFile>false</PreprocessToFile>
+      <IgnoreStandardIncludePath>false</IgnoreStandardIncludePath>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -130,6 +132,7 @@
     <ClCompile Include="MemSnapshot.cpp" />
     <ClCompile Include="Process.cpp" />
     <ClCompile Include="Source.cpp" />
+    <ClCompile Include="TcpConnection.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MemFilter.h" />
@@ -137,6 +140,7 @@
     <ClInclude Include="MemoryMapped.h" />
     <ClInclude Include="MemSnapshot.h" />
     <ClInclude Include="Process.h" />
+    <ClInclude Include="TcpConnection.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -95,6 +95,88 @@ void Process::inject_dll(const std::string& dllname)
 	CloseHandle(asdc);
 }
 
+std::map<std::string, HMODULE> Process::get_modules()
+{
+	HMODULE hMods[1024];
+	DWORD cbNeeded;
+
+	std::map<std::string, HMODULE> ret;
+
+	if (EnumProcessModules(proc, hMods, sizeof(hMods), &cbNeeded))
+	{
+		for (unsigned int i = 0; i < (cbNeeded / sizeof(HMODULE)); i++)
+		{
+			TCHAR szModName[MAX_PATH];
+
+			// Get the full path to the module's file.
+
+			if (GetModuleFileNameEx(proc, hMods[i], szModName,
+				sizeof(szModName) / sizeof(TCHAR)))
+			{
+				// Print the module name and handle value.
+
+				ret[szModName] = hMods[i];
+			}
+		}
+	}
+
+	return ret;
+}
+
+std::vector<TcpConnection> Process::get_tcp_connections()
+{
+
+	std::vector<TcpConnection> ret;
+
+	PMIB_TCPTABLE2 pTcpTable;
+	ULONG ulSize = 0;
+	DWORD dwRetVal = 0;
+
+
+	pTcpTable = (MIB_TCPTABLE2*)malloc(sizeof(MIB_TCPTABLE2));
+	if (pTcpTable == NULL) {
+		return ret;
+	}
+
+	ulSize = sizeof(MIB_TCPTABLE);
+	// Make an initial call to GetTcpTable2 to
+	// get the necessary size into the ulSize variable
+	if ((dwRetVal = GetTcpTable2(pTcpTable, &ulSize, TRUE)) ==
+		ERROR_INSUFFICIENT_BUFFER) {
+		delete pTcpTable;
+		pTcpTable = (MIB_TCPTABLE2*)malloc(ulSize);
+		if (pTcpTable == NULL) {
+			return ret;
+		}
+	}
+	// Make a second call to GetTcpTable2 to get
+	// the actual data we require
+	if ((dwRetVal = GetTcpTable2(pTcpTable, &ulSize, TRUE)) == NO_ERROR) {
+		//pTcpTable->dwNumEntries
+		//table[i].dwState
+
+		std::vector<MIB_TCPROW2> by_proc;
+		std::copy_if(pTcpTable->table, pTcpTable->table + pTcpTable->dwNumEntries, std::back_inserter(by_proc), [this](MIB_TCPROW2& row) {
+			return row.dwOwningPid == this->get_pid();
+			});
+
+		for (auto& row : by_proc) {
+			ret.emplace_back(row);
+		}
+	}
+	else {
+		delete pTcpTable;
+		return ret;
+	}
+
+	if (pTcpTable != NULL) {
+		delete pTcpTable;
+		pTcpTable = NULL;
+	}
+
+	return ret;
+}
+
 /* A function to get a vector of pages */
 std::vector<Page> Process::pages() const
 {

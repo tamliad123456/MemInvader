@@ -1,47 +1,23 @@
-﻿#include <windows.h>
-#include <iostream>
-#include <iomanip>
-#include <stdio.h>
+﻿
 #include "MemInvaderInclude.h"
-
+#include <winternl.h>
 using namespace std;
+typedef struct _THREAD_LAST_SYSCALL_INFORMATION
+{
+	PVOID FirstArgument;
+	USHORT SystemCallNumber;
+
+} THREAD_LAST_SYSCALL_INFORMATION, * PTHREAD_LAST_SYSCALL_INFORMATION;
+
 
 
 int main()
 {
 	auto proc = get_processes("devenv.exe")[0];
 
-	//wchar_t bla[] = L"blabla";
-	//
+	auto modules = proc.get_modules();
+	auto conenctions = proc.get_tcp_connections();
 
-	//while (1)
-	//{
-	//	for (auto addr : proc.find(bla))
-	//	{
-	//		wchar_t w[] = L"fuckyu";
-	//		proc.write(addr, w);
-	//	}
-	//}
-
-
-
-	auto first = proc.take_snapshot();
-
-	while (1)
-	{
-		auto tmp = proc.take_snapshot();
-		auto bla = clock();
-		auto diff = first->cmp(*tmp, Type::DIFFERANT, true);
-		auto curr = clock();
-
-		if (diff->size() > 0)
-		{
-			std::cout << curr - bla << std::endl;
-		}
-
-		first = tmp;
-	}
-
-	std::cin.get();
+	
 	return 0;
 }

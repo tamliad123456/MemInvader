@@ -26,6 +26,8 @@ public:
 	inline HANDLE get_handle() const { return proc; };
 
 	void inject_dll(const std::string& dllname);
+	std::map<std::string, HMODULE> get_modules();
+	std::vector<TcpConnection> get_tcp_connections();
 
 	std::vector<Page> pages() const;
 
