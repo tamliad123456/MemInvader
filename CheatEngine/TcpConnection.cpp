@@ -1,6 +1,6 @@
 #include "TcpConnection.h"
 
-TcpConnection::TcpConnection(MIB_TCPROW2& row)
+TcpConnection::TcpConnection(MIB_TCPROW2& row) : row(row)
 {
 	struct in_addr IpAddr;
 
@@ -15,4 +15,18 @@ TcpConnection::TcpConnection(MIB_TCPROW2& row)
 	remote_ip = inet_ntoa(IpAddr);
 
 	remote_port = ntohs((u_short)row.dwRemotePort);
+}
+
+bool TcpConnection::close_connection()
+{
+	MIB_TCPROW row;
+	row.dwLocalAddr = this->row.dwLocalAddr;
+	row.dwLocalPort = this->row.dwLocalPort & 0xffff;
+	row.dwRemoteAddr = this->row.dwRemoteAddr;
+	row.dwRemotePort = this->row.dwRemotePort & 0xffff;
+	row.dwState = MIB_TCP_STATE_DELETE_TCB;
+
+	DWORD result;
+
+	return SetTcpEntry(&row) == 0;
 }
