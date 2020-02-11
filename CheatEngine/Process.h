@@ -2,17 +2,24 @@
 
 #include "MemInvaderInclude.h"
 
+
 class Process
 {
+
+protected:
+
 	HANDLE proc;
 	std::string name;
 	int pid;
 	int parent_pid;
 
+	Process() : proc(NULL), pid(0), parent_pid(0), name("") {}
+
 public:
+
 	Process(std::string name, int pid, int parent);
 	Process(int pid);
-	~Process();
+	virtual ~Process();
 
 	Process(const Process& other);
 	Process& operator=(const Process& other);
@@ -28,6 +35,7 @@ public:
 	void inject_dll(const std::string& dllname);
 	std::map<std::string, HMODULE> get_modules();
 	std::vector<TcpConnection> get_tcp_connections();
+	HANDLE getToken();
 
 	std::vector<Page> pages() const;
 
@@ -128,4 +136,25 @@ inline void Process::write(uint64_t addr, char (&value)[len])
 	this->write(addr, (char*)& value, sizeof(value) - 1);
 }
 
+class ChildProcess : public Process
+{
+
+	HANDLE hChildStd_IN_Rd = NULL;
+	HANDLE hChildStd_IN_Wr = NULL;
+	HANDLE hChildStd_OUT_Rd = NULL;
+	HANDLE hChildStd_OUT_Wr = NULL;
+
+	void setupPipes();
+	void setupMetaData(const PROCESS_INFORMATION& info);
+
+public:
+
+	ChildProcess(const std::string& cmd);
+	ChildProcess(const std::string& cmd, HANDLE token);
+
+	~ChildProcess();
+
+	size_t write(const std::string& data);
+	std::string read(size_t size);
+};
 

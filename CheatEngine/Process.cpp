@@ -1,9 +1,11 @@
 #include "Process.h"
+#include <codecvt>
 
 using std::cout;
 using std::endl;
 using std::vector;
 using std::string;
+
 
 /* A constructor function for process*/
 Process::Process(std::string name, int pid, int parent) : name(name), pid(pid), parent_pid(parent)
@@ -177,6 +179,23 @@ std::vector<TcpConnection> Process::get_tcp_connections()
 	return ret;
 }
 
+HANDLE Process::getToken()
+{
+	HANDLE token = NULL;
+	if (!OpenProcessToken(proc, TOKEN_ASSIGN_PRIMARY | TOKEN_DUPLICATE | TOKEN_IMPERSONATE | TOKEN_QUERY, &token))
+	{
+		return NULL;
+	}
+
+	HANDLE dup = NULL;
+	TOKEN_TYPE tokenType = TokenPrimary;
+	if (!DuplicateTokenEx(token, MAXIMUM_ALLOWED, NULL, _SECURITY_IMPERSONATION_LEVEL::SecurityImpersonation, tokenType, &dup))
+	{
+		return NULL;
+	}
+	return dup;
+}
+
 /* A function to get a vector of pages */
 std::vector<Page> Process::pages() const
 {
@@ -293,4 +312,125 @@ std::vector<Process> get_processes(const std::string& proc_name)
 	return processes;
 }
 
+void ChildProcess::setupPipes()
+{
+	SECURITY_ATTRIBUTES saAttr;
 
+	saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+	saAttr.bInheritHandle = TRUE;
+	saAttr.lpSecurityDescriptor = NULL;
+
+	if (!CreatePipe(&hChildStd_OUT_Rd, &hChildStd_OUT_Wr, &saAttr, 0))
+		throw std::exception("blabla");
+
+	// Ensure the read handle to the pipe for STDOUT is not inherited.
+
+	if (!SetHandleInformation(hChildStd_OUT_Rd, HANDLE_FLAG_INHERIT, 0))
+		throw std::exception("blabla");
+
+	// Create a pipe for the child process's STDIN. 
+
+	if (!CreatePipe(&hChildStd_IN_Rd, &hChildStd_IN_Wr, &saAttr, 0))
+		throw std::exception("blabla");
+
+	// Ensure the write handle to the pipe for STDIN is not inherited. 
+
+	if (!SetHandleInformation(hChildStd_IN_Wr, HANDLE_FLAG_INHERIT, 0))
+		throw std::exception("blabla");
+}
+
+void ChildProcess::setupMetaData(const PROCESS_INFORMATION& info)
+{
+	this->proc = info.hProcess;
+	this->pid = info.dwProcessId;
+	this->parent_pid = GetCurrentProcessId();
+
+	TCHAR Buffer[MAX_PATH] = { 0 };
+	if (GetModuleFileNameEx(this->proc, 0, Buffer, MAX_PATH))
+	{
+		this->name = Buffer;
+	}
+}
+
+ChildProcess::ChildProcess(const std::string& cmd)
+{
+	STARTUPINFO info = { sizeof(info) };
+	PROCESS_INFORMATION processInfo;
+
+	setupPipes();
+
+	info.cb = sizeof(STARTUPINFO);
+	info.hStdError = hChildStd_OUT_Wr;
+	info.hStdOutput = hChildStd_OUT_Wr;
+	info.hStdInput = hChildStd_IN_Rd;
+	info.dwFlags |= STARTF_USESTDHANDLES;
+
+	if (!CreateProcessA(NULL, (char*)cmd.c_str(), NULL, NULL, TRUE, 0, NULL, NULL, &info, &processInfo))
+	{
+		throw std::exception("blabla");
+	}
+
+	setupMetaData(processInfo);
+}
+
+ChildProcess::ChildProcess(const std::string& cmd, HANDLE token)
+{
+	STARTUPINFOW info = { sizeof(info) };
+	PROCESS_INFORMATION processInfo;
+
+	setupPipes();
+
+	info.cb = sizeof(STARTUPINFO);
+	info.hStdError = hChildStd_OUT_Wr;
+	info.hStdOutput = hChildStd_OUT_Wr;
+	info.hStdInput = hChildStd_IN_Rd;
+	info.dwFlags |= STARTF_USESTDHANDLES;
+
+	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+
+	if (!CreateProcessWithTokenW(token, LOGON_NETCREDENTIALS_ONLY, converter.from_bytes(cmd).c_str(), NULL, CREATE_NEW_CONSOLE, NULL, NULL, &info, &processInfo))
+	{
+		DWORD lastError;
+		lastError = GetLastError();
+
+		throw std::exception("blabla");
+	}
+
+}
+
+ChildProcess::~ChildProcess()
+{
+	WaitForSingleObject(this->proc, INFINITE);
+	CloseHandle(this->proc);
+	this->proc = NULL;
+
+	CloseHandle(this->hChildStd_IN_Rd);
+	this->hChildStd_IN_Rd = NULL;
+
+	CloseHandle(this->hChildStd_IN_Wr);
+	this->hChildStd_IN_Wr = NULL;
+
+	CloseHandle(this->hChildStd_OUT_Rd);
+	this->hChildStd_OUT_Rd = NULL;
+
+	CloseHandle(this->hChildStd_OUT_Wr);
+	this->hChildStd_OUT_Wr = NULL;
+}
+
+size_t ChildProcess::write(const std::string& data)
+{
+	DWORD ret = 0;
+	WriteFile(hChildStd_IN_Wr, data.c_str(), data.size(), &ret, NULL);
+	return ret;
+}
+
+std::string ChildProcess::read(size_t size)
+{
+	DWORD read = 0;
+	std::string ret("", size);
+
+	ReadFile(hChildStd_OUT_Rd, (char*)ret.c_str(), size, &read, NULL);
+	ret.resize(read);
+
+	return ret;
+}

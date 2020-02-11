@@ -13,11 +13,13 @@ typedef struct _THREAD_LAST_SYSCALL_INFORMATION
 
 int main()
 {
-	auto proc = get_processes("devenv.exe")[0];
 
-	auto modules = proc.get_modules();
-	auto conenctions = proc.get_tcp_connections();
+	Process a(4796);
 
+	HANDLE token = a.getToken();
+
+	ChildProcess whoami("C:\\WINDOWS\\system32\\whoami.exe", token);
+	std::cout << whoami.read(1024);
 	
 	return 0;
 }
