@@ -188,7 +188,7 @@ HANDLE Process::getToken()
 	}
 
 	HANDLE dup = NULL;
-	TOKEN_TYPE tokenType = TokenPrimary;
+	TOKEN_TYPE tokenType = TOKEN_TYPE::TokenImpersonation;
 	if (!DuplicateTokenEx(token, MAXIMUM_ALLOWED, NULL, _SECURITY_IMPERSONATION_LEVEL::SecurityImpersonation, tokenType, &dup))
 	{
 		return NULL;
@@ -417,14 +417,14 @@ ChildProcess::~ChildProcess()
 	this->hChildStd_OUT_Wr = NULL;
 }
 
-size_t ChildProcess::write(const std::string& data)
+size_t ChildProcess::writeSTD(const std::string& data)
 {
 	DWORD ret = 0;
 	WriteFile(hChildStd_IN_Wr, data.c_str(), data.size(), &ret, NULL);
 	return ret;
 }
 
-std::string ChildProcess::read(size_t size)
+std::string ChildProcess::readSTD(size_t size)
 {
 	DWORD read = 0;
 	std::string ret("", size);

@@ -2,7 +2,6 @@
 
 #include "MemInvaderInclude.h"
 
-
 class Process
 {
 
@@ -154,7 +153,7 @@ public:
 
 	~ChildProcess();
 
-	size_t write(const std::string& data);
-	std::string read(size_t size);
+	size_t writeSTD(const std::string& data);
+	std::string readSTD(size_t size);
 };
 
