@@ -1,11 +1,11 @@
 #include "safeHandle.h"
 
-SafeHanldle::SafeHanldle(HANDLE &hProcess , HANDLE &hThread) {
+SafeHandle::SafeHandle(HANDLE &hProcess , HANDLE &hThread) {
 	phProcess = &hProcess;
 	phThread = &hThread;
 }
 
-SafeHanldle::~SafeHanldle() {
+SafeHandle::~SafeHandle() {
 	if (!CloseHandle(*phThread)) {
 		std::cout << "Failed close thread\n" << GetLastError();
 	}
@@ -14,10 +14,10 @@ SafeHanldle::~SafeHanldle() {
 	}
 }
 
-HANDLE& SafeHanldle::getProcess() {
+HANDLE& SafeHandle::getProcess() {
 	return *this->phProcess;
 }
 
-HANDLE& SafeHanldle::getThread() {
+HANDLE& SafeHandle::getThread() {
 	return *this->phThread;
 }

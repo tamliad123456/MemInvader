@@ -3,12 +3,12 @@
 #include <windows.h>
 #include <iostream>
 
-class SafeHanldle {
+class SafeHandle {
 public:	
-	SafeHanldle(HANDLE & hProcess, HANDLE & hThread);
+	SafeHandle(HANDLE & hProcess, HANDLE & hThread);
 	HANDLE& getProcess();
 	HANDLE& getThread();
-	~SafeHanldle();
+	~SafeHandle();
 private:
 	HANDLE * phProcess = nullptr;
 	HANDLE * phThread = nullptr;
