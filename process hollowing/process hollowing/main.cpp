@@ -3,12 +3,11 @@
 #include <iostream>
 #include "utils.h"
 
-
 UINT processHollow();
 
 int main() {
-	processHollow();
-	return EXIT_SUCCESS;
+	UINT status = processHollow();
+	return status;
 }
 
 UINT processHollow() { 
@@ -67,5 +66,5 @@ UINT processHollow() {
 	}
 
 	delete buffer;
-	return 0;
+	return EXIT_SUCCESS;
 }

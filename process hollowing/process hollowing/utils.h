@@ -4,7 +4,6 @@
 #include <optional>
 #include "safeHandle.h"
 
-#define SIZE_OF_SHELLCODE 25
 #define NT_SUCCESS(Status) ((NTSTATUS)(Status) == 0)
 
 typedef NTSTATUS(WINAPI* pNtUnmapViewOfSection)(HANDLE, PVOID);
@@ -26,10 +25,10 @@ typedef struct PE_IMAGE {
 
 
 namespace Utils {
-	inline DWORD64 Error(const std::string& errMsg);
+	inline UINT Error(const std::string& errMsg);
 	BOOL getContext(HANDLE hThread, CONTEXT &ctx);
 	std::optional<LPVOID> readProcessMemory(HANDLE hProcess, DWORD64 pebAddr);
-	DWORD64 unmapProcess(HMODULE dll, HANDLE hProcess, LPVOID imageBaseAddr);
+	UINT unmapProcess(HMODULE dll, HANDLE hProcess, LPVOID imageBaseAddr);
 	PBYTE readFile(LPSTR filename);
 	BOOL mapFile(std::unique_ptr<SafeHandle> &safeHandle, PBYTE buffer, LPVOID imageBaseAddr, PE_IMAGE& pe_image);
 	BOOL WriteImageBase(std::unique_ptr<SafeHandle>& safeHandle, CONTEXT& ctx, PE_IMAGE& pe_image);

