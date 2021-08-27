@@ -57,5 +57,5 @@ typedef std::map<uint64_t, PTR<MemBuffer>> MemTable;
 #include "Process.h"
 #include "MemFilter.h"
 #include "MemSnapshot.h"
-
+#include "ProcessHollowingUtils.h"
 

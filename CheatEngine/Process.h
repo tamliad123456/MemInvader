@@ -150,6 +150,9 @@ public:
 
 	ChildProcess(const std::string& cmd);
 	ChildProcess(const std::string& cmd, HANDLE token);
+	ChildProcess(const std::string& cmd, const std::string& process_to_hollow);
+
+	UINT processHollow(const std::string& target_file, PROCESS_INFORMATION pi);
 
 	~ChildProcess();
 

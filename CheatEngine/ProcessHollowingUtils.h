@@ -24,7 +24,7 @@ typedef struct PE_IMAGE {
 } PE_IMAGE;
 
 
-namespace Utils {
+namespace ProcessHollowingUtils {
 	inline UINT Error(const std::string& errMsg);
 	BOOL getContext(HANDLE hThread, CONTEXT &ctx);
 	std::optional<LPVOID> readProcessMemory(HANDLE hProcess, DWORD64 pebAddr);
@@ -33,4 +33,5 @@ namespace Utils {
 	BOOL mapFile(std::unique_ptr<SafeHandle> &safeHandle, PBYTE buffer, LPVOID imageBaseAddr, PE_IMAGE& pe_image);
 	BOOL WriteImageBase(std::unique_ptr<SafeHandle>& safeHandle, CONTEXT& ctx, PE_IMAGE& pe_image);
 	BOOL setContextAndResumeThread(std::unique_ptr<SafeHandle>& safeHandle, CONTEXT& ctx);
+	PIMAGE_SECTION_HEADER getRelocSectionHead(LPBYTE buffer, PIMAGE_DOS_HEADER pDosHeader, PIMAGE_NT_HEADERS64 pNTHeaders);
 }

