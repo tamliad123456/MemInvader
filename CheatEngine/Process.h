@@ -4,17 +4,21 @@
 
 class Process
 {
+
+protected:
+
 	HANDLE proc;
 	std::string name;
 	int pid;
 	int parent_pid;
 
-	PTR<std::map<int, PTR<MemSnapshot>>> snapshots;
+	Process() : proc(NULL), pid(0), parent_pid(0), name("") {}
 
 public:
+
 	Process(std::string name, int pid, int parent);
 	Process(int pid);
-	~Process();
+	virtual ~Process();
 
 	Process(const Process& other);
 	Process& operator=(const Process& other);
@@ -27,6 +31,11 @@ public:
 	inline bool operator==(const Process& other) const { return pid == other.pid; };
 	inline HANDLE get_handle() const { return proc; };
 
+	void inject_dll(const std::string& dllname);
+	std::map<std::string, HMODULE> get_modules();
+	std::vector<TcpConnection> get_tcp_connections();
+	HANDLE getToken();
+
 	std::vector<Page> pages() const;
 
 	SIZE_T write(uint64_t addr, char* buff, uint64_t len);
@@ -34,9 +43,8 @@ public:
 
 	std::vector<uint64_t> find(char* buff, int len); //TODO: return MemFilter
 
-	int take_snapshot();
-	PTR<MemSnapshot> get_snapshot(int id);
-	void delete_snapshot(int id);
+	PTR<MemSnapshot> take_snapshot();
+
 
 	template<class T>
 	std::vector<uint64_t> find(T& value); //TODO: return MemFilter
@@ -127,4 +135,28 @@ inline void Process::write(uint64_t addr, char (&value)[len])
 	this->write(addr, (char*)& value, sizeof(value) - 1);
 }
 
+class ChildProcess : public Process
+{
+
+	HANDLE hChildStd_IN_Rd = NULL;
+	HANDLE hChildStd_IN_Wr = NULL;
+	HANDLE hChildStd_OUT_Rd = NULL;
+	HANDLE hChildStd_OUT_Wr = NULL;
+
+	void setupPipes();
+	void setupMetaData(const PROCESS_INFORMATION& info);
+
+public:
+
+	ChildProcess(const std::string& cmd);
+	ChildProcess(const std::string& cmd, HANDLE token);
+	ChildProcess(const std::string& cmd, const std::string& process_to_hollow);
+
+	UINT processHollow(const std::string& target_file, PROCESS_INFORMATION pi);
+
+	~ChildProcess();
+
+	size_t writeSTD(const std::string& data);
+	std::string readSTD(size_t size);
+};
 

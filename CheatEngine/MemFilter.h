@@ -1,21 +1,25 @@
 #pragma once
 #include "MemInvaderInclude.h"
 
+enum Type : char
+{
+	BIGGER,
+	SMALLER,
+	DIFFERANT,
+	SAME
+};
+
+
 class MemFilter
 {
-	PTR<MemTable> addresses;
+	PTR<std::vector<MemValue>> addresses;
 
 public:
 
-	enum Filter
-	{
-		BIGGER,
-		SMALLER,
-		DIFFERANT,
-		SAME
-	};
+	MemFilter(PTR<std::vector<MemValue>>);
+	~MemFilter();
 
-	void filter(Process& proc, Filter filter);
+	void filter(Process& proc, Type filter);
 
 	void filter_new_value(Process& proc, char* value, int len);
 

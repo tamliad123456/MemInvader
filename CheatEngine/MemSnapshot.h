@@ -1,29 +1,46 @@
 #pragma once
 #include "MemInvaderInclude.h"
 
-
 struct Page
 {
 	uint64_t base_addr;
 	uint64_t size;
+
+	Page(uint64_t addr, uint64_t size) : base_addr(addr), size(size) {}
+};
+
+struct MemValue
+{
+	uint64_t addr;
+	char value;
+
+	MemValue(uint64_t addr, char value) : addr(addr), value(value) {}
 };
 
 class MemSnapshot
 {
 
 private:
+	std::string dir;
 	MemTable pages;
 
 public:
-	MemSnapshot(Process& proc);
+	MemSnapshot(Process& proc, const std::string& name);
 	~MemSnapshot();
 
 	PTR<MemBuffer> get_mem(uint64_t addr);
 
 	std::vector<uint64_t> get_addresses();
 
-	std::map<uint64_t, uint64_t>  cmp(MemSnapshot& other); //TODO: return MemFilter
+	PTR<std::vector<MemValue>> cmp(MemSnapshot& other, Type filter, bool async = false); //TODO: return MemFilter
 
-	static std::map<uint64_t, uint64_t> cmp_buffers(const MemBuffer& a, const MemBuffer& b); //TODO: return MemTable, with the data instead of the length (may hinder performance)
+	static PTR<MemoryMapped> create_disk_buffer(const std::string& name, uint64_t size);
+	static bool DeleteDirectory(const char* sPath);
+	static bool IsDots(const char* str);
+
+	static void cmp_buffers_different(const MemBuffer& prior, const MemBuffer& later, uint64_t base_addr, std::vector<MemValue>& table, std::mutex& table_lock);
+	static void cmp_buffers_bigger(const MemBuffer& prior, const MemBuffer& later, uint64_t base_addr, std::vector<MemValue>& table, std::mutex& table_lock);
+	static void cmp_buffers_smaller(const MemBuffer& prior, const MemBuffer& later, uint64_t base_addr, std::vector<MemValue>& table, std::mutex& table_lock);
+	static void cmp_buffers_same(const MemBuffer& prior, const MemBuffer& later, uint64_t base_addr, std::vector<MemValue>& table, std::mutex& table_lock);
 };
 

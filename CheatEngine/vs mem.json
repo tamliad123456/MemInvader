@@ -1,0 +1,260 @@
+[
+    [
+        {
+            "Key": "FolderDifference",
+            "Value": {
+                "FontCharSet": 1,
+                "FontName": "SegoeUI",
+                "FontPointSize": 9
+            }
+        }
+    ],
+    [
+        {
+            "Key": "Differentcontent",
+            "Value": {
+                "Background": 16777215,
+                "FontFlags": 0,
+                "Foreground": 5349
+            }
+        },
+        {
+            "Key": "Identicalcontent",
+            "Value": {
+                "Background": 16777215,
+                "FontFlags": 0,
+                "Foreground": 0
+            }
+        },
+        {
+            "Key": "SourceOnly",
+            "Value": {
+                "Background": 16777215,
+                "FontFlags": 0,
+                "Foreground": 0
+            }
+        },
+        {
+            "Key": "OddRowItems",
+            "Value": {
+                "Background": 16777215,
+                "FontFlags": 0,
+                "Foreground": 0
+            }
+        },
+        {
+            "Key": "EvenRowItems",
+            "Value": {
+                "Background": 16777215,
+                "FontFlags": 0,
+                "Foreground": 0
+            }
+        },
+        {
+            "Key": "NotDownloaded",
+            "Value": {
+                "Background": 16777215,
+                "FontFlags": 0,
+                "Foreground": 7171437
+            }
+        },
+        {
+            "Key": "TargetOnly",
+            "Value": {
+                "Background": 16777215,
+                "FontFlags": 0,
+                "Foreground": 0
+            }
+        }
+    ],
+    [
+        {
+            "Key": "CppMemberOperatorSemanticTokenFormat",
+            "Value": {
+                "Background": 16777217,
+                "FontFlags": 0,
+                "Foreground": 128
+            }
+        },
+        {
+            "Key": "CppOperatorSemanticTokenFormat",
+            "Value": {
+                "Background": 16777217,
+                "FontFlags": 0,
+                "Foreground": 33554432
+            }
+        },
+        {
+            "Key": "CppUDLStringSemanticTokenFormat",
+            "Value": {
+                "Background": 16777217,
+                "FontFlags": 0,
+                "Foreground": 255
+            }
+        },
+        {
+            "Key": "CppUDLNumberSemanticTokenFormat",
+            "Value": {
+                "Background": 16777217,
+                "FontFlags": 0,
+                "Foreground": 255
+            }
+        },
+        {
+            "Key": "CppUDLRawSemanticTokenFormat",
+            "Value": {
+                "Background": 16777217,
+                "FontFlags": 0,
+                "Foreground": 255
+            }
+        },
+        {
+            "Key": "CppFunctionSemanticTokenFormat",
+            "Value": {
+                "Background": 16777217,
+                "FontFlags": 0,
+                "Foreground": 128
+            }
+        },
+        {
+            "Key": "CppMemberFunctionSemanticTokenFormat",
+            "Value": {
+                "Background": 16777217,
+                "FontFlags": 0,
+                "Foreground": 128
+            }
+        }
+    ],
+    [
+        {
+            "Key": "localname",
+            "Value": {
+                "Background": 16777217,
+                "FontFlags": 0,
+                "Foreground": 16702620
+            }
+        },
+        {
+            "Key": "staticsymbol",
+            "Value": {
+                "Background": 16777217,
+                "FontFlags": 0,
+                "Foreground": 16777216
+            }
+        },
+        {
+            "Key": "structname",
+            "Value": {
+                "Background": 16777217,
+                "FontFlags": 0,
+                "Foreground": 9553542
+            }
+        },
+        {
+            "Key": "keyword-control",
+            "Value": {
+                "Background": 16777217,
+                "FontFlags": 0,
+                "Foreground": 14655704
+            }
+        },
+        {
+            "Key": "operator-overloaded",
+            "Value": {
+                "Background": 16777217,
+                "FontFlags": 0,
+                "Foreground": 11197660
+            }
+        },
+        {
+            "Key": "extensionmethodname",
+            "Value": {
+                "Background": 16777217,
+                "FontFlags": 0,
+                "Foreground": 11197660
+            }
+        },
+        {
+            "Key": "methodname",
+            "Value": {
+                "Background": 16777217,
+                "FontFlags": 0,
+                "Foreground": 11197660
+            }
+        },
+        {
+            "Key": "parametername",
+            "Value": {
+                "Background": 16777217,
+                "FontFlags": 0,
+                "Foreground": 16702620
+            }
+        }
+    ],
+    [
+        {
+            "Key": "G:\\programing\\MemInvader\\CheatEngine.sln",
+            "Value": {
+                "LocalProperties": {
+                    "FullPath": "G:\\programing\\MemInvader\\CheatEngine.sln",
+                    "Type": 0,
+                    "SourceControl": null
+                },
+                "Remote": null,
+                "IsFavorite": false,
+                "LastAccessed": "2019-09-21T15:30:58.0515397+00:00",
+                "IsLocal": true,
+                "HasRemote": false,
+                "IsSourceControlled": false
+            }
+        },
+        {
+            "Key": "G:\\programing\\MemoryMappedFile\\test\\test.sln",
+            "Value": {
+                "LocalProperties": {
+                    "FullPath": "G:\\programing\\MemoryMappedFile\\test\\test.sln",
+                    "Type": 0,
+                    "SourceControl": null
+                },
+                "Remote": null,
+                "IsFavorite": false,
+                "LastAccessed": "2019-09-21T12:16:15.8985789+00:00",
+                "IsLocal": true,
+                "HasRemote": false,
+                "IsSourceControlled": false
+            }
+        },
+        {
+            "Key": "G:\\programing\\MemInvaderTest\\MemInvader\\CheatEngine.sln",
+            "Value": {
+                "LocalProperties": {
+                    "FullPath": "G:\\programing\\MemInvaderTest\\MemInvader\\CheatEngine.sln",
+                    "Type": 0,
+                    "SourceControl": null
+                },
+                "Remote": null,
+                "IsFavorite": false,
+                "LastAccessed": "2019-09-20T07:39:45.9721022+00:00",
+                "IsLocal": true,
+                "HasRemote": false,
+                "IsSourceControlled": false
+            }
+        },
+        {
+            "Key": "G:\\programing\\lame-3.100\\vc_solution\\vc9_lame.sln",
+            "Value": {
+                "LocalProperties": {
+                    "FullPath": "G:\\programing\\lame-3.100\\vc_solution\\vc9_lame.sln",
+                    "Type": 0,
+                    "SourceControl": null
+                },
+                "Remote": null,
+                "IsFavorite": false,
+                "LastAccessed": "2019-09-17T07:32:34.0498216+00:00",
+                "IsLocal": true,
+                "HasRemote": false,
+                "IsSourceControlled": false
+            }
+        }
+    ]
+]
