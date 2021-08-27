@@ -5,8 +5,6 @@ VisualStudioVersion = 16.0.29020.237
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CheatEngine", "CheatEngine\CheatEngine.vcxproj", "{6B6D6C0A-0CC3-4AA2-9BA6-74DA16133215}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "blabla", "blabla\blabla.vcxproj", "{DAE962A1-4F82-4981-BA85-22CE67B001E4}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
